@@ -3,9 +3,16 @@ import { PostService } from "./post.service";
 
 
 const createPost = async (req: Request, res: Response) => {
-    console.log('req from controller', req.body);
+    console.log('req from controller', req.user);
     try {
-        const result = await PostService.createPost(req.body)
+        const user = req.user
+        if (!user) {
+            return res.status(400).json({
+                error: 'Unauthorized'
+            });
+        }
+
+        const result = await PostService.createPost(req.body, user.id as string)
         return res.status(201).json({
             message: 'Post created successfully',
             data: result
