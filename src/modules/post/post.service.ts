@@ -103,10 +103,35 @@ const getAllPost = async (
         orderBy: { [sortBy]: sortOrder },
     });
 
-    return allPost;
+    const total = await prisma.post.count({
+        where: { AND: whereConditions }
+    })
+
+    return {
+        data: allPost,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
 };
+
+
+const getPostById = async (id: string) => {
+    console.log('get post by id:', id);
+    const result = await prisma.post.findUnique({
+        where: {
+            id: id
+        }
+    })
+
+    return result
+}
 
 export const PostService = {
     createPost,
     getAllPost,
+    getPostById
 };
