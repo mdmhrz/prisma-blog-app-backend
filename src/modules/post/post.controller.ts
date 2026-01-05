@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { PostService } from "./post.service";
+import { PostStatus } from "../../../generated/prisma/enums";
+import paginationSortinghelper from "../../helpers/parigationSortingHelper";
 
 
 const createPost = async (req: Request, res: Response) => {
@@ -30,9 +32,51 @@ const getAllPost = async (req: Request, res: Response) => {
     try {
         const { search } = req.query
         // console.log(search);
-        const tags = req.query.tags?  (req.query.tags as string).split(','): [];
+        //tags search params
+        const tags = req.query.tags ? (req.query.tags as string).split(',') : [];
 
-        const result = await PostService.getAllPost({ search: search as string || '', tags })
+        //is featured search params
+        const isFeatured = req.query.isFeatured
+            ? req.query.isFeatured === 'true'
+                ? true
+                : req.query.isFeatured === 'false' ? false : undefined
+            : undefined;
+
+        //status search params
+        const status = req.query.status && typeof req.query.status === 'string' && Object.values(PostStatus).includes(req.query.status as PostStatus) ? req.query.status as PostStatus : undefined
+
+        // authorId search params
+
+        const authorId = req.query.authorId ? (req.query.authorId as string) : undefined;
+
+
+        // const page = Number(req.query.page ?? 1)
+        // const limit = Number(req.query.limit ?? 10)
+
+        // const skip = (page - 1) * limit
+
+        // const sortBy = req.query.sortBy as string | undefined
+        // const sortOrder = req.query.sortOrder as string | undefined
+
+
+        const {page, limit, skip, sortBy, sortOrder} = paginationSortinghelper(req.query)
+
+
+
+
+        //FINAL OUTPUT
+        const result = await PostService.getAllPost({
+            search: search as string || '',
+            tags,
+            isFeatured,
+            status,
+            authorId,
+            page,
+            limit,
+            skip,
+            sortBy,
+            sortOrder
+        })
         res.status(200).json(result)
     } catch (error) {
         res.status(500).json({

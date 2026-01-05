@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.APP_USER,
     pass: process.env.APP_PASS,
-  },
+  }
 });
 
 export const auth = betterAuth({
