@@ -1,4 +1,4 @@
-import { Post, PostStatus } from "../../../generated/prisma/client";
+import { CommentStatus, Post, PostStatus } from "../../../generated/prisma/client";
 import { SortOrder } from "../../../generated/prisma/internal/prismaNamespace";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
@@ -101,6 +101,13 @@ const getAllPost = async (
         skip: skip,
         where: whereConditions.length > 0 ? { AND: whereConditions } : {},
         orderBy: { [sortBy]: sortOrder },
+        include: {
+            _count: {
+                select: {
+                    comments: true
+                }
+            }
+        }
     });
 
     const total = await prisma.post.count({
@@ -120,14 +127,65 @@ const getAllPost = async (
 
 
 const getPostById = async (id: string) => {
-    console.log('get post by id:', id);
-    const result = await prisma.post.findUnique({
-        where: {
-            id: id
-        }
+
+    return await prisma.$transaction(async (tx) => {
+        //update view count on every request
+        await tx.post.update({
+            where: {
+                id: id
+            },
+            data: {
+                views: {
+                    increment: 1
+                }
+            }
+        })
+
+
+        const postData = await prisma.post.findUnique({
+            where: {
+                id: id
+            },
+
+            include: {
+                comments: {
+                    where: {
+                        parentId: null,
+                        status: CommentStatus.APPROVED
+                    },
+                    orderBy: {
+                        createdAt: 'asc'
+                    },
+                    include: {
+                        replies: {
+                            where: {
+                                status: CommentStatus.APPROVED
+                            },
+                            orderBy: {
+                                createdAt: 'asc'
+                            },
+                            include: {
+
+                                replies: {
+                                    where: {
+                                        status: CommentStatus.APPROVED
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: {
+                        comments: true
+                    }
+                }
+            }
+        })
+
+        return postData
     })
 
-    return result
 }
 
 export const PostService = {

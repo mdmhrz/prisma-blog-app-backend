@@ -3,6 +3,7 @@ import { postRouter } from './modules/post/post.router';
 import { toNodeHandler } from "better-auth/node";
 import { auth } from './lib/auth';
 import cors from 'cors'
+import { commentRouter } from './modules/comment/comment.router';
 
 
 const app: Application = express();
@@ -22,12 +23,30 @@ app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 
 
-app.use('/api/v1/post', postRouter)
-
+// root route
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello, World!');
 
 });
+
+
+// all other routes
+app.use('/api/v1/post', postRouter);
+app.use('/api/v1/comment', commentRouter)
+
+
+
+
+
+// not found routes
+app.use((req: Request, res: Response) => {
+    res.status(404).json({
+        success: false,
+        message: "Route not found",
+        path: req.path
+    })
+})
+
 
 
 export default app;
