@@ -7,8 +7,14 @@ import auth from '../../middlewares/auth';
 
 const router = express.Router();
 
+
+router.get('/:commentId', CommentController.getCommentbyId);
+router.get("/author/:authorId", CommentController.getCommentsbyAuthor)
 router.post('/', auth(UserRole.ADMIN, UserRole.USER), CommentController.createPost)
 
+router.patch('/:commentId', auth(UserRole.ADMIN, UserRole.USER), CommentController.updateCommentbyId)
+
+router.delete('/:commentId', auth(UserRole.USER, UserRole.ADMIN), CommentController.deleteCommentbyId)
 
 
 
