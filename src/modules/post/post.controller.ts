@@ -76,14 +76,10 @@ const getAllPost = async (req: Request, res: Response) => {
 const getPostById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        // if (!id) {
-        //     throw new Error("Post id is required")
-        // }
-
-        
         const result = await PostService.getPostById(id as string)
         res.status(200).json(result)
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             message: 'Post data fetch failed',
             error: error instanceof Error ? error.message : String(error)
@@ -91,7 +87,30 @@ const getPostById = async (req: Request, res: Response) => {
     }
 }
 
+const getMyPosts = async (req: Request, res: Response) => {
+    try {
+        const user = req.user
+        console.log('user from getMyPost', user);
+        if (!user) {
+            throw new Error("User informaiton in required")
+        }
+
+
+        const result = await PostService.getMyPosts(user.id as string)
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error, 'error dekho');
+        res.status(500).json({
+            message: 'My post data fetch failed',
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+}
+
 
 export const PostController = {
-    createPost, getAllPost, getPostById
+    createPost,
+    getAllPost,
+    getPostById,
+    getMyPosts
 };

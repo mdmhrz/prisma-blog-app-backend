@@ -13,7 +13,7 @@ router.get("/author/:authorId", CommentController.getCommentsbyAuthor)
 router.post('/', auth(UserRole.ADMIN, UserRole.USER), CommentController.createPost)
 
 router.patch('/:commentId', auth(UserRole.ADMIN, UserRole.USER), CommentController.updateCommentbyId)
-
+router.patch("/:commentId/moderate", auth(UserRole.ADMIN), CommentController.moderateComment)
 router.delete('/:commentId', auth(UserRole.USER, UserRole.ADMIN), CommentController.deleteCommentbyId)
 
 

@@ -121,8 +121,36 @@ const deleteCommentbyId = async (req: Request, res: Response) => {
 }
 
 
+// moderate comment by admin controller
+const moderateComment = async (req: Request, res: Response) => {
+    try {
+        const { commentId } = req.params;
+        
+
+
+        const result = await commentService.moderateComment(
+            commentId as string, req.body
+        )
+
+        return res.status(200).json({
+            message: 'Comment update successfully',
+            data: result
+        });
+    } catch (error) {
+        res.status(400).json({
+            message: 'Comment update failed',
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+}
+
 
 
 export const CommentController = {
-    createPost, getCommentbyId, getCommentsbyAuthor, deleteCommentbyId, updateCommentbyId
+    createPost,
+    getCommentbyId,
+    getCommentsbyAuthor,
+    deleteCommentbyId,
+    updateCommentbyId,
+    moderateComment
 }

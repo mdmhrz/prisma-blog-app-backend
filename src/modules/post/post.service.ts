@@ -127,69 +127,72 @@ const getAllPost = async (
 
 
 const getPostById = async (id: string) => {
-
     return await prisma.$transaction(async (tx) => {
-        //update view count on every request
+
+        // Check if post exists
+        const postExists = await tx.post.findUnique({
+            where: { id }
+        });
+
+        if (!postExists) {
+            throw new Error('Post not found');
+        }
+
+        // Update view count
         await tx.post.update({
-            where: {
-                id: id
-            },
+            where: { id },
             data: {
-                views: {
-                    increment: 1
-                }
+                views: { increment: 1 }
             }
-        })
+        });
 
-
-        const postData = await prisma.post.findUnique({
-            where: {
-                id: id
-            },
-
+        // Fetch full post
+        const postData = await tx.post.findUnique({
+            where: { id },
             include: {
                 comments: {
                     where: {
                         parentId: null,
                         status: CommentStatus.APPROVED
                     },
-                    orderBy: {
-                        createdAt: 'asc'
-                    },
+                    orderBy: { createdAt: 'asc' },
                     include: {
                         replies: {
-                            where: {
-                                status: CommentStatus.APPROVED
-                            },
-                            orderBy: {
-                                createdAt: 'asc'
-                            },
+                            where: { status: CommentStatus.APPROVED },
+                            orderBy: { createdAt: 'asc' },
                             include: {
-
                                 replies: {
-                                    where: {
-                                        status: CommentStatus.APPROVED
-                                    }
+                                    where: { status: CommentStatus.APPROVED }
                                 }
                             }
                         }
                     }
                 },
                 _count: {
-                    select: {
-                        comments: true
-                    }
+                    select: { comments: true }
                 }
             }
-        })
+        });
 
-        return postData
+        return postData;
+    });
+};
+
+
+const getMyPosts = async (authorId: string) => {
+    return await prisma.post.findMany({
+        where: {
+            authorId
+        },
+        orderBy: { createdAt: 'desc' }
     })
-
 }
+
+
 
 export const PostService = {
     createPost,
     getAllPost,
-    getPostById
+    getPostById,
+    getMyPosts
 };

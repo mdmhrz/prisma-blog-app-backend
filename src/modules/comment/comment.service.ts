@@ -146,6 +146,40 @@ const deleteCommentbyId = async (commentId: string, userId: string, role: string
 }
 
 
+// moderate comment by admin
+
+const moderateComment = async (id: string, data: {
+    status: CommentStatus
+}) => {
+    const commentData = await prisma.comment.findUnique({
+        where: {
+            id
+        },
+        select: {
+            id: true,
+            status: true
+        }
+    })
+
+    if (commentData?.status === data.status) {
+        throw new Error(`Your privided status ${data.status} is already exists`)
+    }
+
+
+    return await prisma.comment.update({
+        where: {
+            id
+        },
+        data
+    })
+}
+
+
 export const commentService = {
-    createComment, getCommentById, getCommentsbyAuthor, deleteCommentbyId, updateCommentById
+    createComment,
+    getCommentById,
+    getCommentsbyAuthor,
+    deleteCommentbyId,
+    updateCommentById,
+    moderateComment
 }
