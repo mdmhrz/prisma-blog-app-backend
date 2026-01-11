@@ -108,9 +108,98 @@ const getMyPosts = async (req: Request, res: Response) => {
 }
 
 
+
+const updatePost = async (req: Request, res: Response) => {
+    try {
+        const user = req.user
+        if (!user) {
+            throw new Error("You are unauthorized")
+        }
+
+        const isAdmin = user.role === 'ADMIN'
+
+        const { postId } = req.params;
+        if (!postId) {
+            throw new Error("post id is required")
+        }
+
+
+        const result = await PostService.updatePost(
+            postId,
+            req.body,
+            user.id,
+            isAdmin
+        )
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error, 'error dekho');
+        res.status(500).json({
+            message: 'Post update failed',
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+}
+
+
+const deletePost = async (req: Request, res: Response) => {
+    try {
+        const user = req.user
+        if (!user) {
+            throw new Error("You are unauthorized")
+        }
+
+        const isAdmin = user.role === 'ADMIN'
+
+        const { postId } = req.params;
+        if (!postId) {
+            throw new Error("post id is required")
+        }
+
+
+        const result = await PostService.deletePost(
+            postId,
+            user.id,
+            isAdmin
+        )
+        res.status(200).json({
+            message: 'post deleted successfully',
+            result
+        })
+    } catch (error) {
+        // console.log(error, 'error dekho');
+        res.status(500).json({
+            message: 'Post delete failed',
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+}
+
+
+const getStats = async (req: Request, res: Response) => {
+    try {
+
+
+
+        const result = await PostService.getStats()
+        res.status(200).json(result)
+    } catch (error) {
+        // console.log(error, 'error dekho');
+        res.status(500).json({
+            message: 'Post stat retrived failed',
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+}
+
+
+
+
 export const PostController = {
     createPost,
     getAllPost,
     getPostById,
-    getMyPosts
+    getMyPosts,
+    updatePost,
+    deletePost,
+    getStats
 };
