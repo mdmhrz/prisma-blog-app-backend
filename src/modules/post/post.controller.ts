@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { PostService } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
 import paginationSortinghelper from "../../helpers/parigationSortingHelper";
 
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
     console.log('req from controller', req.user);
     try {
         const user = req.user
@@ -20,13 +20,9 @@ const createPost = async (req: Request, res: Response) => {
             data: result
         });
     } catch (error) {
-        res.status(500).json({
-            message: 'Post creation failed',
-            error: error instanceof Error ? error.message : String(error)
-        });
+        next(error)
     }
 }
-
 
 const getAllPost = async (req: Request, res: Response) => {
     try {
@@ -72,7 +68,6 @@ const getAllPost = async (req: Request, res: Response) => {
     }
 }
 
-
 const getPostById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -107,9 +102,7 @@ const getMyPosts = async (req: Request, res: Response) => {
     }
 }
 
-
-
-const updatePost = async (req: Request, res: Response) => {
+const updatePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user
         if (!user) {
@@ -132,14 +125,9 @@ const updatePost = async (req: Request, res: Response) => {
         )
         res.status(200).json(result)
     } catch (error) {
-        console.log(error, 'error dekho');
-        res.status(500).json({
-            message: 'Post update failed',
-            error: error instanceof Error ? error.message : String(error)
-        });
+        next(error)
     }
 }
-
 
 const deletePost = async (req: Request, res: Response) => {
     try {
@@ -174,7 +162,6 @@ const deletePost = async (req: Request, res: Response) => {
     }
 }
 
-
 const getStats = async (req: Request, res: Response) => {
     try {
 
@@ -190,9 +177,6 @@ const getStats = async (req: Request, res: Response) => {
         });
     }
 }
-
-
-
 
 export const PostController = {
     createPost,

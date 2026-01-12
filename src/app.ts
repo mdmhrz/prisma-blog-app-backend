@@ -4,6 +4,8 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from './lib/auth';
 import cors from 'cors'
 import { commentRouter } from './modules/comment/comment.router';
+import errorHandler from './middlewares/globalErrorHandler';
+import notFound from './middlewares/notFound';
 
 
 const app: Application = express();
@@ -30,22 +32,18 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 
+
 // all other routes
 app.use('/api/v1/post', postRouter);
 app.use('/api/v1/comment', commentRouter)
 
+app.use(errorHandler)
 
 
 
 
 // not found routes
-app.use((req: Request, res: Response) => {
-    res.status(404).json({
-        success: false,
-        message: "Route not found",
-        path: req.path
-    })
-})
+app.use(notFound)
 
 
 
