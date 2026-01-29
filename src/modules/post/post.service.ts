@@ -1,8 +1,10 @@
-import { CommentStatus, Post, PostStatus } from "../../../generated/prisma/client";
-import { SortOrder } from "../../../generated/prisma/internal/prismaNamespace";
+
+import { Post } from "../../../generated/prisma/client";
+import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { UserRole } from "../../constants/enums/user.role.enum";
 import { prisma } from "../../lib/prisma";
+
 
 const createPost = async (
     data: Omit<Post, "id" | "createdAt" | "updatedAt" | "authorId">,

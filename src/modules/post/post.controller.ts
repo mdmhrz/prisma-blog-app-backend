@@ -44,7 +44,10 @@ const getAllPost = async (req: Request, res: Response) => {
         const authorId = req.query.authorId ? (req.query.authorId as string) : undefined;
 
         //descturing data form pagination helper funciton
-        const { page, limit, skip, sortBy, sortOrder } = paginationSortinghelper(req.query)
+        const paginationParams = paginationSortinghelper(req.query)
+        console.log('Raw query params:', req.query)
+        console.log('Pagination params:', paginationParams)
+        const { page, limit, skip, sortBy, sortOrder } = paginationParams
 
         //FINAL OUTPUT
         const result = await PostService.getAllPost({
